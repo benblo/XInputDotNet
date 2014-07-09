@@ -10,6 +10,7 @@ extern "C"
 {
 
     XI_EXPORT DWORD XInputGamePadGetState(DWORD dwUserIndex, XINPUT_STATE *pState);
+    XI_EXPORT DWORD XInputGamePadGetStateHack(DWORD dwUserIndex, XINPUT_STATE *pState);
     XI_EXPORT void XInputGamePadSetState(DWORD dwUserIndex, float leftMotor, float rightMotor);
 
 }

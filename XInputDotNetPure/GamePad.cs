@@ -11,6 +11,8 @@ namespace XInputDotNetPure
         [DllImport(DLLName)]
         public static extern uint XInputGamePadGetState(uint playerIndex, IntPtr state);
         [DllImport(DLLName)]
+        public static extern uint XInputGamePadGetStateHack(uint playerIndex, IntPtr state);
+        [DllImport(DLLName)]
         public static extern void XInputGamePadSetState(uint playerIndex, float leftMotor, float rightMotor);
     }
 
@@ -22,14 +24,16 @@ namespace XInputDotNetPure
 
     public struct GamePadButtons
     {
-        ButtonState start, back, leftStick, rightStick, leftShoulder, rightShoulder, a, b, x, y;
+        ButtonState start, back, guide, leftStick, rightStick, leftShoulder, rightShoulder, a, b, x, y;
 
-        internal GamePadButtons(ButtonState start, ButtonState back, ButtonState leftStick, ButtonState rightStick,
-                                ButtonState leftShoulder, ButtonState rightShoulder, ButtonState a, ButtonState b,
-                                ButtonState x, ButtonState y)
+        internal GamePadButtons(ButtonState start, ButtonState back, ButtonState guide,
+                                ButtonState leftStick, ButtonState rightStick,
+                                ButtonState leftShoulder, ButtonState rightShoulder,
+                                ButtonState a, ButtonState b, ButtonState x, ButtonState y)
         {
             this.start = start;
             this.back = back;
+            this.guide = guide;
             this.leftStick = leftStick;
             this.rightStick = rightStick;
             this.leftShoulder = leftShoulder;
@@ -48,6 +52,11 @@ namespace XInputDotNetPure
         public ButtonState Back
         {
             get { return back; }
+        }
+
+        public ButtonState Guide
+        {
+            get { return guide; }
         }
 
         public ButtonState LeftStick
@@ -226,6 +235,7 @@ namespace XInputDotNetPure
             RightThumb = 0x00000080,
             LeftShoulder = 0x0100,
             RightShoulder = 0x0200,
+            Guide = 0x0400,
             A = 0x1000,
             B = 0x2000,
             X = 0x4000,
@@ -252,6 +262,7 @@ namespace XInputDotNetPure
             buttons = new GamePadButtons(
                 (rawState.Gamepad.dwButtons & (uint)ButtonsConstants.Start) != 0 ? ButtonState.Pressed : ButtonState.Released,
                 (rawState.Gamepad.dwButtons & (uint)ButtonsConstants.Back) != 0 ? ButtonState.Pressed : ButtonState.Released,
+                (rawState.Gamepad.dwButtons & (uint)ButtonsConstants.Guide) != 0 ? ButtonState.Pressed : ButtonState.Released,
                 (rawState.Gamepad.dwButtons & (uint)ButtonsConstants.LeftThumb) != 0 ? ButtonState.Pressed : ButtonState.Released,
                 (rawState.Gamepad.dwButtons & (uint)ButtonsConstants.RightThumb) != 0 ? ButtonState.Pressed : ButtonState.Released,
                 (rawState.Gamepad.dwButtons & (uint)ButtonsConstants.LeftShoulder) != 0 ? ButtonState.Pressed : ButtonState.Released,
@@ -334,7 +345,7 @@ namespace XInputDotNetPure
         public static GamePadState GetState(PlayerIndex playerIndex, GamePadDeadZone deadZone)
         {
             IntPtr gamePadStatePointer = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(GamePadState.RawState)));
-            uint result = Imports.XInputGamePadGetState((uint)playerIndex, gamePadStatePointer);
+            uint result = Imports.XInputGamePadGetStateHack((uint)playerIndex, gamePadStatePointer);
             GamePadState.RawState state = (GamePadState.RawState)Marshal.PtrToStructure(gamePadStatePointer, typeof(GamePadState.RawState));
             Marshal.FreeHGlobal(gamePadStatePointer);
             return new GamePadState(result == Utils.Success, state, deadZone);
